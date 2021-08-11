@@ -2,9 +2,24 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: './tsconfig.json',
+    ecmaVersion: 6,
+    sourceType: "module",
+    ecmaFeatures: {
+      modules: true
+    }
   },
   env: {
     node: true,
+  },
+  settings: {
+    'import/resolver': {
+      'node': {
+        'extensions': ['.js', '.ts'],
+      },
+      'typescript': {
+        "alwaysTryTypes": true,
+      }
+    }
   },
   plugins: [
     '@typescript-eslint',
@@ -12,7 +27,8 @@ module.exports = {
   ],
   extends: [
     "eslint:recommended",
-    "plugin:eslint-plugin/recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
   ],
   rules: {
     'semi': ["error", "always"],
@@ -51,11 +67,12 @@ module.exports = {
       },
     ],
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-explicit-any': 2,
+    '@typescript-eslint/no-explicit-any': 1,
     // Allow to define variables after use:
     '@typescript-eslint/no-use-before-define': ['error', { variables: false }],
     '@typescript-eslint/unbound-method': 'error',
     '@typescript-eslint/no-unnecessary-condition': ['error', { allowConstantLoopConditions: true }],
-    '@typescript-eslint/strict-boolean-expressions': [2, { allowNullableObject: false }],
+    '@typescript-eslint/strict-boolean-expressions': [1, { allowNullableObject: false }],
+    "@typescript-eslint/no-unused-vars": "off"
   },
 };
