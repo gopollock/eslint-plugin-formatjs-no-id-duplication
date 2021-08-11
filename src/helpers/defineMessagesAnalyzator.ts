@@ -10,7 +10,7 @@ type TrackedMessage = {
 
 type MessageId = string | number;
 
-export default class FormatJsMessageIdDuplicationAnalyzator {
+export default class DefineMessagesDuplicationAnalyzator {
   private idTracker: Dictionary<MessageId, TrackedMessage> = {};
   private context?: Rule.RuleContext;
 

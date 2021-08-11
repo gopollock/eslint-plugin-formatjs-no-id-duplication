@@ -1,5 +1,5 @@
 import { Rule } from "eslint";
-import DuplicationAnalyzator from "../helpers/duplicationAnalyzator";
+import DuplicationAnalyzator from "../helpers/defineMessagesAnalyzator";
 import { CallExpressionNode } from "../helpers/types";
 
 const duplicationAnalyzator = new DuplicationAnalyzator();
