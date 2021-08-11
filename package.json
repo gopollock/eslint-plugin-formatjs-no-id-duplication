@@ -12,8 +12,7 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "build": "tsc",
-    "test": "mocha tests --recursive"
+    "build": "tsc"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^4.29.1",
