@@ -1,0 +1,41 @@
+{
+  "exclude": [
+    "tests",
+    "dist",
+  ],
+  "compilerOptions": {
+    "outDir": "dist/",
+    "types": [
+      "node",
+    ],
+    // Emit .d.ts files.
+    "declaration": true,
+    // Create source map for .d.ts files.
+    "declarationMap": true,
+    // Create js source map files.
+    "sourceMap": true,
+    // Enable more strict type checking.
+    "strict": true,
+    "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
+    "noUnusedLocals": true /* Report errors on unused locals. */,
+    "strictNullChecks": true /* Enable strict null checks. */,
+
+    // Fixes import problems: https://www.typescriptlang.org/tsconfig#esModuleInterop
+    "esModuleInterop": true,
+    // For typescript > 1.6
+    "moduleResolution": "Node",
+    "target": "es5",
+    // Allow iterating of iterators.
+    "downlevelIteration": true,
+    "noImplicitAny": true,
+    // Do not verify type consistency between different modules.
+    "skipLibCheck": true,
+    // "Enforces certain constraints which make it possible for build tools (including TypeScript itself, under
+    // --build mode) to quickly determine if a project has been built yet."
+    "composite": true,
+    // Also transpile js files
+    "allowJs": false,
+    // Enable experimental support for ES7 decorators. E.g. @debounce ann
+    "experimentalDecorators": true,
+  }
+}
