@@ -17,6 +17,7 @@ module.exports = {
         'extensions': ['.js', '.ts'],
       },
       'typescript': {
+        // Makes types only containing library visible
         "alwaysTryTypes": true,
       }
     }
