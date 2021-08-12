@@ -1,27 +1,29 @@
 {
   "name": "eslint-plugin-formatjs-no-id-duplication",
-  "version": "0.0.0",
-  "description": "prevents id duplication in defineMessages function from react-intl library",
+  "version": "0.1",
+  "description": "Prevents id duplication, when react-intl library is used.",
   "keywords": [
     "eslint",
     "eslintplugin",
-    "eslint-plugin"
+    "eslint-plugin",
+    "react-intl",
+    "formatjs"
   ],
   "author": "gopollock",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "build": "tsc"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^4.29.1",
     "requireindex": "^1.1.0"
   },
   "devDependencies": {
     "@types/eslint": "^7.28.0",
     "@types/estree": "^0.0.50",
     "@types/node": "^16.4.13",
+    "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^3.3.0",
     "eslint": "^7.1.0",
     "eslint-import-resolver-typescript": "^2.4.0",
@@ -31,7 +33,7 @@
     "typescript": "^3.9.5"
   },
   "engines": {
-    "node": "10.x || 12.x || 14.x || >= 16"
+    "node": ">= 10.16.0 || 12.x || 14.x || >= 16"
   },
   "peerDependencies": {
     "eslint": ">=6"
