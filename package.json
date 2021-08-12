@@ -33,7 +33,7 @@
     "typescript": "^3.9.5"
   },
   "engines": {
-    "node": "10.x || 12.x || 14.x || >= 16"
+    "node": ">= 10.16.0 || 12.x || 14.x || >= 16"
   },
   "peerDependencies": {
     "eslint": ">=6"
