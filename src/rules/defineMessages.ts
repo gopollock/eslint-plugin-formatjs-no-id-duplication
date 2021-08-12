@@ -1,16 +1,16 @@
 import { Rule } from "eslint";
-import DuplicationAnalyzator from "../helpers/defineMessagesAnalyzator";
+import DuplicationAnalyzer from "../helpers/defineMessagesAnalyzer";
 import { CallExpressionNode } from "../helpers/types";
 
-const duplicationAnalyzator = new DuplicationAnalyzator();
+const duplicationAnalyzer = new DuplicationAnalyzer();
 
 export default {
   create: (context: Rule.RuleContext): Rule.NodeListener => {
-    duplicationAnalyzator.setContext(context);
+    duplicationAnalyzer.setContext(context);
 
     return {
       CallExpression: (node: CallExpressionNode) => {
-        duplicationAnalyzator.proceedDefineMessagesFunctionCall(node);
+        duplicationAnalyzer.proceedDefineMessagesFunctionCall(node);
       },
     };
   },

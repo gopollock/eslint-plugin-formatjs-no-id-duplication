@@ -10,7 +10,7 @@ type TrackedMessage = {
 
 type MessageId = string | number;
 
-export default class DefineMessagesDuplicationAnalyzator {
+export default class DefineMessagesDuplicationAnalyzer {
   private idTracker: Dictionary<MessageId, TrackedMessage> = {};
   private context?: Rule.RuleContext;
 
@@ -47,12 +47,12 @@ export default class DefineMessagesDuplicationAnalyzator {
 
   private checkMessageDuplication = (messageNode: ESTree.Property): void => {
     const messageId: string | number | null = this.getMessageId(messageNode);
-    if (!messageId || (this.context == null)) {
+    if (messageId == null || (this.context == null)) {
       return;
     }
 
-    const isDuplication = !(this.idTracker[messageId] == null);
-    if (!isDuplication) {
+    const firstTrakedMessage = this.idTracker[messageId];
+    if (firstTrakedMessage == null) {
       this.idTracker[messageId] = {
         node: messageNode,
         context: this.context,
@@ -64,8 +64,8 @@ export default class DefineMessagesDuplicationAnalyzator {
 
     this.reportDuplication(messageId, this.context, messageNode);
 
-    const firstTrakedMessage = this.idTracker[messageId];
-    if ((firstTrakedMessage != null) && !firstTrakedMessage.isReported) {
+    if (!firstTrakedMessage.isReported) {
+      firstTrakedMessage.isReported = true;
       this.reportDuplication(messageId, firstTrakedMessage.context, firstTrakedMessage.node);
     }
   }
