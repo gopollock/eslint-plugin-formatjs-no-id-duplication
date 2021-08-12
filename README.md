@@ -1,6 +1,6 @@
 # eslint-plugin-formatjs-no-id-duplication
 
-Prevents id duplication, when react-intl library is used.
+Prevents id duplication, when [react-intl](https://formatjs.io/) library is used.
 
 ## Installation
 
