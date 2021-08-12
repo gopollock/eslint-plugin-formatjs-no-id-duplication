@@ -50,7 +50,7 @@ Then configure the rules you want to use under the rules section.
 
 Tracks duplication of id in `defineMessages` function along usage in single file and in multiple files. 
 
-#### Valid
+#### Valid 👍
 ```js
 // messagesOne.js
 defineMessages({
@@ -70,7 +70,7 @@ defineMessages({
 });
 ```
 
-#### Invalid Multiple files
+#### Invalid Multiple files 👎
 ```js
 // messagesOne.js
 defineMessages({
@@ -90,7 +90,7 @@ defineMessages({
 });
 ```
 
-#### Invalid Single files
+#### Invalid Single files 👎
 ```js
 defineMessages({
     first: {
