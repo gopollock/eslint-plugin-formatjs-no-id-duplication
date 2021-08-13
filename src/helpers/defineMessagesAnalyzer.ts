@@ -12,11 +12,6 @@ type MessageId = string | number;
 
 export default class DefineMessagesDuplicationAnalyzer {
   private idTracker: Dictionary<MessageId, TrackedMessage> = {};
-  private context?: Rule.RuleContext;
-
-  private setContext = (context: Rule.RuleContext): void => {
-    this.context = context;
-  }
 
   private reportDuplication = (
     messageId: MessageId, context: Rule.RuleContext, messageNode: ESTree.Property
@@ -45,9 +40,9 @@ export default class DefineMessagesDuplicationAnalyzer {
     return null;
   }
 
-  private checkMessageDuplication = (messageNode: ESTree.Property): void => {
+  private checkMessageDuplication = (messageNode: ESTree.Property, context: Rule.RuleContext): void => {
     const messageId: string | number | null = this.getMessageId(messageNode);
-    if (messageId == null || (this.context == null)) {
+    if (messageId == null) {
       return;
     }
 
@@ -55,14 +50,14 @@ export default class DefineMessagesDuplicationAnalyzer {
     if (firstTrakedMessage == null) {
       this.idTracker[messageId] = {
         node: messageNode,
-        context: this.context,
+        context: context,
         isReported: false,
       };
 
       return;
     }
 
-    this.reportDuplication(messageId, this.context, messageNode);
+    this.reportDuplication(messageId, context, messageNode);
 
     if (!firstTrakedMessage.isReported) {
       firstTrakedMessage.isReported = true;
@@ -71,14 +66,13 @@ export default class DefineMessagesDuplicationAnalyzer {
   }
 
   public proceedDefineMessagesFunctionCall = (node: CallExpressionNode, context: Rule.RuleContext): void => {
-    this.setContext(context);
     const isDefineMessagesFunctionCall = this.getIsDefineMessagesFunctionNode(node);
     if (!isDefineMessagesFunctionCall) {
       return;
     }
 
     const messageNodeList = this.getMessageNodeList(node);
-    messageNodeList.forEach(this.checkMessageDuplication);
+    messageNodeList.forEach((node) => this.checkMessageDuplication(node, context));
   }
 
   private removeSpreadElements = (
