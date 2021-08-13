@@ -4,7 +4,8 @@
     "dist",
   ],
   "compilerOptions": {
-    "outDir": "dist/",
+    "rootDir": "src",
+    "outDir": "dist",
     "types": [
       "node",
     ],
