@@ -1,22 +1,11 @@
-/**
- * @fileoverview prevents id duplication in defineMessages function from react-intl library
- * @author eslint-plugin-formatjs-no-id-duplication
- */
-"use strict";
+import defineMessagesRule from './rules/defineMessages';
 
-//------------------------------------------------------------------------------
-// Requirements
-//------------------------------------------------------------------------------
+const plugin = {
+  rules: {
+    'defineMessages': defineMessagesRule,
+  },
+};
 
-const requireIndex = require("requireindex");
+export type Plugin = typeof plugin
 
-//------------------------------------------------------------------------------
-// Plugin Definition
-//------------------------------------------------------------------------------
-
-
-// import all rules in lib/rules
-module.exports.rules = requireIndex(`${__dirname  }/rules`);
-
-
-
+module.exports = plugin;
