@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-formatjs-no-id-duplication",
-  "version": "0.1",
+  "version": "1.0.0",
   "description": "Prevents id duplication, when react-intl library is used.",
   "keywords": [
     "eslint",
