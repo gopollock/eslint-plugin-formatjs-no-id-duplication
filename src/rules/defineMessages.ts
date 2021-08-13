@@ -5,13 +5,9 @@ import { CallExpressionNode } from "../helpers/types";
 const duplicationAnalyzer = new DuplicationAnalyzer();
 
 export default {
-  create: (context: Rule.RuleContext): Rule.NodeListener => {
-    duplicationAnalyzer.setContext(context);
-
-    return {
-      CallExpression: (node: CallExpressionNode) => {
-        duplicationAnalyzer.proceedDefineMessagesFunctionCall(node);
-      },
-    };
-  },
+  create: (context: Rule.RuleContext): Rule.NodeListener => ({
+    CallExpression: (node: CallExpressionNode) => {
+      duplicationAnalyzer.proceedDefineMessagesFunctionCall(node, context);
+    },
+  }),
 } as Rule.RuleModule;

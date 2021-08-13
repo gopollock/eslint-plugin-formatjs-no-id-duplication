@@ -14,7 +14,7 @@ export default class DefineMessagesDuplicationAnalyzer {
   private idTracker: Dictionary<MessageId, TrackedMessage> = {};
   private context?: Rule.RuleContext;
 
-  public setContext = (context: Rule.RuleContext): void => {
+  private setContext = (context: Rule.RuleContext): void => {
     this.context = context;
   }
 
@@ -70,7 +70,8 @@ export default class DefineMessagesDuplicationAnalyzer {
     }
   }
 
-  public proceedDefineMessagesFunctionCall = (node: CallExpressionNode): void => {
+  public proceedDefineMessagesFunctionCall = (node: CallExpressionNode, context: Rule.RuleContext): void => {
+    this.setContext(context);
     const isDefineMessagesFunctionCall = this.getIsDefineMessagesFunctionNode(node);
     if (!isDefineMessagesFunctionCall) {
       return;
