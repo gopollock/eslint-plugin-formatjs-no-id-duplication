@@ -8,36 +8,34 @@ ruleTester.run('defineMessages rule. Single file usage', defineMessagesRule, {
     {
       code: `defineMessages({
         firstMessage: {
-          id: 's_firstId',
+          id: 'single_firstId',
           defaultMessage: 'first default Message',
         },
         secondMessage: {
-          id: 's_secondId',
+          id: 'single_secondId',
           defaultMessage: 'second default message',
         },
       })`,
+      filename: 'singleValidMessage.ts',
     },
   ],
   invalid: [
     {
       code: `defineMessages({
         firstMessage: {
-          id: 's_thirdId',
+          id: 'single_thirdId',
           defaultMessage: 'first default Message',
         },
         secondMessage: {
-          id: 's_thirdId',
+          id: 'single_thirdId',
           defaultMessage: 'second default message',
         },
       })`,
       errors: [
-        {
-          message: `message with id 's_thirdId' is duplicated`,
-        },
-        {
-          message: `message with id 's_thirdId' is duplicated`,
-        },
+        { message: `message with id 'single_thirdId' is duplicated` },
+        { message: `message with id 'single_thirdId' is duplicated` },
       ],
+      filename: 'singleInvalidMessage.ts',
     },
   ],
 });
@@ -47,7 +45,7 @@ ruleTester.run('defineMessages rule. Multiple files usage', defineMessagesRule, 
     {
       code: `defineMessages({
         firstMessage: {
-          id: 'm_firstId',
+          id: 'multiple_firstId',
           defaultMessage: 'first default Message',
         },
       })`,
@@ -56,7 +54,7 @@ ruleTester.run('defineMessages rule. Multiple files usage', defineMessagesRule, 
     {
       code: `defineMessages({
         secondMessage: {
-          id: 'm_secondId',
+          id: 'multiple_secondId',
           defaultMessage: 'second default message',
         },
       })`,
@@ -67,12 +65,12 @@ ruleTester.run('defineMessages rule. Multiple files usage', defineMessagesRule, 
     {
       code: `defineMessages({
         firstMessage: {
-          id: 'm_firstId',
+          id: 'multiple_firstId',
           defaultMessage: 'first default Message',
         },
       })`,
       filename: 'messagesThree.ts',
-      errors: [{ message: `message with id 'm_firstId' is duplicated` }],
+      errors: [{ message: `message with id 'multiple_firstId' is duplicated` }],
     },
   ],
 });
@@ -83,25 +81,19 @@ ruleTester.run('defineMessages creates errors count equal to the same id usage a
     {
       code: `defineMessages({
         firstMessage: {
-          id: 'errorsAmoutCheck',
+          id: 'errorsAmountCheck',
         },
         firstMessage: {
-          id: 'errorsAmoutCheck',
+          id: 'errorsAmountCheck',
         },
         firstMessage: {
-          id: 'errorsAmoutCheck',
+          id: 'errorsAmountCheck',
         },
       })`,
       errors: [
-        {
-          message: `message with id 'errorsAmoutCheck' is duplicated`,
-        },
-        {
-          message: `message with id 'errorsAmoutCheck' is duplicated`,
-        },
-        {
-          message: `message with id 'errorsAmoutCheck' is duplicated`,
-        },
+        { message: `message with id 'errorsAmountCheck' is duplicated` },
+        { message: `message with id 'errorsAmountCheck' is duplicated` },
+        { message: `message with id 'errorsAmountCheck' is duplicated` },
       ],
     },
   ],
@@ -112,7 +104,7 @@ ruleTester.run('defineMessages processes same file multiple times do not give er
     {
       code: `defineMessages({
         firstMessage: {
-          id: 'm_reusedId',
+          id: 'reusedId',
           defaultMessage: 'first default Message',
         },
       })`,
@@ -121,7 +113,7 @@ ruleTester.run('defineMessages processes same file multiple times do not give er
     {
       code: `defineMessages({
         secondMessage: {
-          id: 'm_reusedId',
+          id: 'reusedId',
           defaultMessage: 'second default message',
         },
       })`,
@@ -130,3 +122,54 @@ ruleTester.run('defineMessages processes same file multiple times do not give er
   ],
   invalid: [],
 });
+
+
+ruleTester.run('defineMessages duplicate then fix scenario. Step 1: initial valid state', defineMessagesRule, {
+  valid: [
+    {
+      code: `defineMessages({
+        message: {
+          id: 'duplicateAndFixScenario_id',
+          defaultMessage: 'message',
+        },
+      })`,
+      filename: 'duplicateAndFix.ts',
+    },
+  ],
+  invalid: [],
+});
+
+ruleTester.run('defineMessages duplicate then fix scenario. Step 2: duplicate introduced', defineMessagesRule, {
+  valid: [],
+  invalid: [
+    {
+      code: `defineMessages({
+        message: {
+          id: 'duplicateAndFixScenario_id',
+          defaultMessage: 'message',
+        },
+      })`,
+      filename: 'duplicateAndFixAnotherFile.ts',
+      errors: [{ message: `message with id 'duplicateAndFixScenario_id' is duplicated` }],
+    },
+  ],
+});
+
+ruleTester.run(
+  'defineMessages duplicate then fix scenario. Step 3: duplicate removed, valid again',
+  defineMessagesRule,
+  {
+    valid: [
+      {
+        code: `defineMessages({
+          message: {
+            id: 'nonDuplicatedId',
+            defaultMessage: 'fixed message',
+          },
+        })`,
+        filename: 'duplicateAndFixAnotherFile.ts',
+      },
+    ],
+    invalid: [],
+  }
+);
