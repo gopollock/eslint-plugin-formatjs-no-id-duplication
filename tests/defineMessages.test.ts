@@ -173,3 +173,105 @@ ruleTester.run(
     invalid: [],
   }
 );
+
+ruleTester.run(
+  'defineMessages duplicate multiple times and partially fix scenario. Step 1: initial state with duplications',
+  defineMessagesRule,
+  {
+    valid: [
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileA.ts',
+      },
+    ],
+    invalid: [
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileB.ts',
+        errors: [{ message: `message with id 'duplicateAndFixPartiallyScenario_id' is duplicated` }],
+      },
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileC.ts',
+        errors: [{ message: `message with id 'duplicateAndFixPartiallyScenario_id' is duplicated` }],
+      },
+    ],
+  }
+);
+
+ruleTester.run(
+  'defineMessages duplicate multiple times and partially fix scenario. Step 2: Some duplication are fixed',
+  defineMessagesRule,
+  {
+    valid: [
+      {
+        code: `defineMessages({})`,
+        filename: 'duplicateAndFixPartiallyFileB.ts',
+      },
+    ],
+    invalid: [
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileA.ts',
+        errors: [{ message: `message with id 'duplicateAndFixPartiallyScenario_id' is duplicated` }],
+      },
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileC.ts',
+        errors: [{ message: `message with id 'duplicateAndFixPartiallyScenario_id' is duplicated` }],
+      },
+    ],
+  }
+);
+
+ruleTester.run(
+  'defineMessages duplicate multiple times and partially fix scenario. Step 3: valid after duplicates are removed',
+  defineMessagesRule,
+  {
+    valid: [
+      {
+        code: `defineMessages({})`,
+        filename: 'duplicateAndFixPartiallyFileB.ts',
+      },
+      {
+        code: `defineMessages({})`,
+        filename: 'duplicateAndFixPartiallyFileC.ts',
+      },
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileA.ts',
+      },
+    ],
+    invalid: [],
+  }
+);
