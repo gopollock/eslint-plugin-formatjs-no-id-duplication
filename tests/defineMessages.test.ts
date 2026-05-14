@@ -3,7 +3,7 @@ import defineMessagesRule from '../src/rules/defineMessages';
 
 const ruleTester = new RuleTester();
 
-ruleTester.run('defineMessages rule single file usage', defineMessagesRule, {
+ruleTester.run('defineMessages rule. Single file usage', defineMessagesRule, {
   valid: [
     {
       code: `defineMessages({
@@ -42,7 +42,7 @@ ruleTester.run('defineMessages rule single file usage', defineMessagesRule, {
   ],
 });
 
-ruleTester.run('defineMessages rule multiple files usage', defineMessagesRule, {
+ruleTester.run('defineMessages rule. Multiple files usage', defineMessagesRule, {
   valid: [
     {
       code: `defineMessages({
@@ -71,26 +71,8 @@ ruleTester.run('defineMessages rule multiple files usage', defineMessagesRule, {
           defaultMessage: 'first default Message',
         },
       })`,
-      filename: 'messagesOne.ts',
-      errors: [
-        {
-          message: `message with id 'm_firstId' is duplicated`,
-        },
-      ],
-    },
-    {
-      code: `defineMessages({
-        firstMessage: {
-            id: 'm_firstId',
-            defaultMessage: 'first default Message',
-          },
-      })`,
-      filename: 'messagesTwo.ts',
-      errors: [
-        {
-          message: `message with id 'm_firstId' is duplicated`,
-        },
-      ],
+      filename: 'messagesThree.ts',
+      errors: [{ message: `message with id 'm_firstId' is duplicated` }],
     },
   ],
 });
@@ -123,4 +105,28 @@ ruleTester.run('defineMessages creates errors count equal to the same id usage a
       ],
     },
   ],
+});
+
+ruleTester.run('defineMessages processes same file multiple times do not give error', defineMessagesRule, {
+  valid: [
+    {
+      code: `defineMessages({
+        firstMessage: {
+          id: 'm_reusedId',
+          defaultMessage: 'first default Message',
+        },
+      })`,
+      filename: 'sameFile.ts',
+    },
+    {
+      code: `defineMessages({
+        secondMessage: {
+          id: 'm_reusedId',
+          defaultMessage: 'second default message',
+        },
+      })`,
+      filename: 'sameFile.ts',
+    },
+  ],
+  invalid: [],
 });

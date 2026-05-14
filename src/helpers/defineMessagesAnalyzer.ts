@@ -6,12 +6,14 @@ type TrackedMessage = {
   isReported: boolean,
   node: ESTree.Property,
   context: Rule.RuleContext,
+  filename: string,
 }
 
 type MessageId = string | number;
 
 export default class DefineMessagesDuplicationAnalyzer {
   private idTracker: Dictionary<MessageId, TrackedMessage> = {};
+  private fileIdTracker: Dictionary<string, Set<MessageId>> = {};
 
   private reportDuplication = (
     messageId: MessageId, context: Rule.RuleContext, messageNode: ESTree.Property
@@ -40,28 +42,43 @@ export default class DefineMessagesDuplicationAnalyzer {
     return null;
   }
 
+  public clearFile = (filename: string): void => {
+    const ids = this.fileIdTracker[filename];
+    if (ids == null) {
+      return;
+    }
+    ids.forEach((id) => { delete this.idTracker[id]; });
+    delete this.fileIdTracker[filename];
+  }
+
   private checkMessageDuplication = (messageNode: ESTree.Property, context: Rule.RuleContext): void => {
     const messageId: string | number | null = this.getMessageId(messageNode);
     if (messageId == null) {
       return;
     }
 
-    const firstTrakedMessage = this.idTracker[messageId];
-    if (firstTrakedMessage == null) {
+    const filename = context.getFilename();
+    const firstTrackedMessage = this.idTracker[messageId];
+    if (firstTrackedMessage == null) {
       this.idTracker[messageId] = {
         node: messageNode,
         context: context,
         isReported: false,
+        filename,
       };
+      if (this.fileIdTracker[filename] == null) {
+        this.fileIdTracker[filename] = new Set();
+      }
+      this.fileIdTracker[filename]?.add(messageId);
 
       return;
     }
 
     this.reportDuplication(messageId, context, messageNode);
 
-    if (!firstTrakedMessage.isReported) {
-      firstTrakedMessage.isReported = true;
-      this.reportDuplication(messageId, firstTrakedMessage.context, firstTrakedMessage.node);
+    if (!firstTrackedMessage.isReported) {
+      firstTrackedMessage.isReported = true;
+      this.reportDuplication(messageId, firstTrackedMessage.context, firstTrackedMessage.node);
     }
   }
 
