@@ -3,19 +3,21 @@ import * as ESTree from 'estree';
 import { Dictionary, CallExpressionNode } from "./types";
 
 type TrackedMessage = {
-  isReported: boolean,
-  node: ESTree.Property,
-  context: Rule.RuleContext,
+  isReported: boolean;
+  node: ESTree.Property;
+  context: Rule.RuleContext;
 }
 
 type MessageId = string | number;
 
 export default class DefineMessagesDuplicationAnalyzer {
-  private idTracker: Dictionary<MessageId, TrackedMessage> = {};
+  private messageById: Dictionary<MessageId, TrackedMessage> = {};
+  private fileNamesById: Dictionary<MessageId, Set<string>> = {};
+  private messageIdsByFilename: Dictionary<string, Set<MessageId>> = {};
 
   private reportDuplication = (
     messageId: MessageId, context: Rule.RuleContext, messageNode: ESTree.Property
-  ): void  => {
+  ): void => {
     context.report({
       message: `message with id '${messageId}' is duplicated`,
       node: messageNode,
@@ -23,10 +25,12 @@ export default class DefineMessagesDuplicationAnalyzer {
   }
 
   private getMessageId = (messageNode: ESTree.Property): number | string | null => {
-    const messageNodeProperies: ESTree.Property[] = messageNode.value.type === 'ObjectExpression' ?
+    const messageNodeProperties: ESTree.Property[] = messageNode.value.type === 'ObjectExpression' ?
       this.removeSpreadElements(messageNode.value.properties) : [];
 
-    const messageIdNode = messageNodeProperies.find((messagesProperty: ESTree.Property) => messagesProperty.key.type === 'Identifier' && messagesProperty.key.name === 'id');
+    const messageIdNode = messageNodeProperties.find(
+      (property: ESTree.Property) => (property.key.type === 'Identifier') && (property.key.name === 'id')
+    );
 
     if ((messageIdNode == null) || messageIdNode.value.type !== 'Literal') {
       return null;
@@ -40,29 +44,51 @@ export default class DefineMessagesDuplicationAnalyzer {
     return null;
   }
 
+  public clearFile = (filename: string): void => {
+    const ids = this.messageIdsByFilename[filename];
+
+    ids?.forEach((id) => {
+      this.fileNamesById[id]?.delete(filename);
+      if (this.fileNamesById[id]?.size === 0) {
+        delete this.fileNamesById[id];
+        delete this.messageById[id];
+      }
+    });
+    delete this.messageIdsByFilename[filename];
+  }
+
+  private trackMessageInFile = (filename: string, messageId: MessageId): void => {
+    const ids = this.messageIdsByFilename[filename] ?? new Set();
+    ids.add(messageId);
+    this.messageIdsByFilename[filename] = ids;
+
+    const fileNames = this.fileNamesById[messageId] ?? new Set();
+    fileNames.add(filename);
+    this.fileNamesById[messageId] = fileNames;
+  }
+
   private checkMessageDuplication = (messageNode: ESTree.Property, context: Rule.RuleContext): void => {
-    const messageId: string | number | null = this.getMessageId(messageNode);
+    const messageId = this.getMessageId(messageNode);
     if (messageId == null) {
       return;
     }
 
-    const firstTrakedMessage = this.idTracker[messageId];
-    if (firstTrakedMessage == null) {
-      this.idTracker[messageId] = {
-        node: messageNode,
-        context: context,
-        isReported: false,
-      };
+    const filename = context.getFilename();
+    const firstTrackedMessage = this.messageById[messageId];
 
+    if (firstTrackedMessage === undefined) {
+      this.trackMessageInFile(filename, messageId);
+      this.messageById[messageId] = { node: messageNode, context, isReported: false };
       return;
     }
 
-    this.reportDuplication(messageId, context, messageNode);
-
-    if (!firstTrakedMessage.isReported) {
-      firstTrakedMessage.isReported = true;
-      this.reportDuplication(messageId, firstTrakedMessage.context, firstTrakedMessage.node);
+    if (!firstTrackedMessage.isReported) {
+      firstTrackedMessage.isReported = true;
+      this.reportDuplication(messageId, firstTrackedMessage.context, firstTrackedMessage.node);
     }
+
+    this.reportDuplication(messageId, context, messageNode);
+    this.trackMessageInFile(filename, messageId);
   }
 
   public proceedDefineMessagesFunctionCall = (node: CallExpressionNode, context: Rule.RuleContext): void => {
@@ -76,8 +102,8 @@ export default class DefineMessagesDuplicationAnalyzer {
   }
 
   private removeSpreadElements = (
-    allProperies: Array<ESTree.Property | ESTree.SpreadElement>
-  ): ESTree.Property[] => allProperies.filter((messageNode): messageNode is ESTree.Property => messageNode.type === 'Property')
+    allProperties: Array<ESTree.Property | ESTree.SpreadElement>
+  ): ESTree.Property[] => allProperties.filter((messageNode): messageNode is ESTree.Property => messageNode.type === 'Property')
 
   private getMessageNodeList = (node: CallExpressionNode): ESTree.Property[] => {
     const firstArgument = node.arguments[0];

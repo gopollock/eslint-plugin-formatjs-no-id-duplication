@@ -3,51 +3,49 @@ import defineMessagesRule from '../src/rules/defineMessages';
 
 const ruleTester = new RuleTester();
 
-ruleTester.run('defineMessages rule single file usage', defineMessagesRule, {
+ruleTester.run('defineMessages rule. Single file usage', defineMessagesRule, {
   valid: [
     {
       code: `defineMessages({
         firstMessage: {
-          id: 's_firstId',
+          id: 'single_firstId',
           defaultMessage: 'first default Message',
         },
         secondMessage: {
-          id: 's_secondId',
+          id: 'single_secondId',
           defaultMessage: 'second default message',
         },
       })`,
+      filename: 'singleValidMessage.ts',
     },
   ],
   invalid: [
     {
       code: `defineMessages({
         firstMessage: {
-          id: 's_thirdId',
+          id: 'single_thirdId',
           defaultMessage: 'first default Message',
         },
         secondMessage: {
-          id: 's_thirdId',
+          id: 'single_thirdId',
           defaultMessage: 'second default message',
         },
       })`,
       errors: [
-        {
-          message: `message with id 's_thirdId' is duplicated`,
-        },
-        {
-          message: `message with id 's_thirdId' is duplicated`,
-        },
+        { message: `message with id 'single_thirdId' is duplicated` },
+        { message: `message with id 'single_thirdId' is duplicated` },
       ],
+      filename: 'singleInvalidMessage.ts',
     },
   ],
 });
 
-ruleTester.run('defineMessages rule multiple files usage', defineMessagesRule, {
+ruleTester.run('defineMessages rule. Multiple files usage', defineMessagesRule, {
   valid: [
     {
       code: `defineMessages({
         firstMessage: {
-          id: 'm_firstId',
+          id: 'multiple_firstId',
           defaultMessage: 'first default Message',
         },
       })`,
@@ -56,7 +54,7 @@ ruleTester.run('defineMessages rule multiple files usage', defineMessagesRule, {
     {
       code: `defineMessages({
         secondMessage: {
-          id: 'm_secondId',
+          id: 'multiple_secondId',
           defaultMessage: 'second default message',
         },
       })`,
@@ -67,30 +65,12 @@ ruleTester.run('defineMessages rule multiple files usage', defineMessagesRule, {
     {
       code: `defineMessages({
         firstMessage: {
-          id: 'm_firstId',
+          id: 'multiple_firstId',
           defaultMessage: 'first default Message',
         },
       })`,
-      filename: 'messagesOne.ts',
-      errors: [
-        {
-          message: `message with id 'm_firstId' is duplicated`,
-        },
-      ],
-    },
-    {
-      code: `defineMessages({
-        firstMessage: {
-            id: 'm_firstId',
-            defaultMessage: 'first default Message',
-          },
-      })`,
-      filename: 'messagesTwo.ts',
-      errors: [
-        {
-          message: `message with id 'm_firstId' is duplicated`,
-        },
-      ],
+      filename: 'messagesThree.ts',
+      errors: [{ message: `message with id 'multiple_firstId' is duplicated` }],
     },
   ],
 });
@@ -101,26 +81,197 @@ ruleTester.run('defineMessages creates errors count equal to the same id usage a
     {
       code: `defineMessages({
         firstMessage: {
-          id: 'errorsAmoutCheck',
+          id: 'errorsAmountCheck',
         },
         firstMessage: {
-          id: 'errorsAmoutCheck',
+          id: 'errorsAmountCheck',
         },
         firstMessage: {
-          id: 'errorsAmoutCheck',
+          id: 'errorsAmountCheck',
         },
       })`,
       errors: [
-        {
-          message: `message with id 'errorsAmoutCheck' is duplicated`,
-        },
-        {
-          message: `message with id 'errorsAmoutCheck' is duplicated`,
-        },
-        {
-          message: `message with id 'errorsAmoutCheck' is duplicated`,
-        },
+        { message: `message with id 'errorsAmountCheck' is duplicated` },
+        { message: `message with id 'errorsAmountCheck' is duplicated` },
+        { message: `message with id 'errorsAmountCheck' is duplicated` },
       ],
     },
   ],
 });
+
+ruleTester.run('defineMessages processes same file multiple times do not give error', defineMessagesRule, {
+  valid: [
+    {
+      code: `defineMessages({
+        firstMessage: {
+          id: 'reusedId',
+          defaultMessage: 'first default Message',
+        },
+      })`,
+      filename: 'sameFile.ts',
+    },
+    {
+      code: `defineMessages({
+        secondMessage: {
+          id: 'reusedId',
+          defaultMessage: 'second default message',
+        },
+      })`,
+      filename: 'sameFile.ts',
+    },
+  ],
+  invalid: [],
+});
+
+
+ruleTester.run('defineMessages duplicate then fix scenario. Step 1: initial valid state', defineMessagesRule, {
+  valid: [
+    {
+      code: `defineMessages({
+        message: {
+          id: 'duplicateAndFixScenario_id',
+          defaultMessage: 'message',
+        },
+      })`,
+      filename: 'duplicateAndFix.ts',
+    },
+  ],
+  invalid: [],
+});
+
+ruleTester.run('defineMessages duplicate then fix scenario. Step 2: duplicate is introduced', defineMessagesRule, {
+  valid: [],
+  invalid: [
+    {
+      code: `defineMessages({
+        message: {
+          id: 'duplicateAndFixScenario_id',
+          defaultMessage: 'message',
+        },
+      })`,
+      filename: 'duplicateAndFixAnotherFile.ts',
+      errors: [{ message: `message with id 'duplicateAndFixScenario_id' is duplicated` }],
+    },
+  ],
+});
+
+ruleTester.run(
+  'defineMessages duplicate then fix scenario. Step 3: duplicate is removed, valid again',
+  defineMessagesRule,
+  {
+    valid: [
+      {
+        code: `defineMessages({
+          message: {
+            id: 'nonDuplicatedId',
+            defaultMessage: 'fixed message',
+          },
+        })`,
+        filename: 'duplicateAndFixAnotherFile.ts',
+      },
+    ],
+    invalid: [],
+  }
+);
+
+ruleTester.run(
+  'defineMessages duplicate multiple times and partially fix scenario. Step 1: initial state with duplications',
+  defineMessagesRule,
+  {
+    valid: [
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileA.ts',
+      },
+    ],
+    invalid: [
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileB.ts',
+        errors: [{ message: `message with id 'duplicateAndFixPartiallyScenario_id' is duplicated` }],
+      },
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileC.ts',
+        errors: [{ message: `message with id 'duplicateAndFixPartiallyScenario_id' is duplicated` }],
+      },
+    ],
+  }
+);
+
+ruleTester.run(
+  'defineMessages duplicate multiple times and partially fix scenario. Step 2: Some duplication are fixed',
+  defineMessagesRule,
+  {
+    valid: [
+      {
+        code: `defineMessages({})`,
+        filename: 'duplicateAndFixPartiallyFileB.ts',
+      },
+    ],
+    invalid: [
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileA.ts',
+        errors: [{ message: `message with id 'duplicateAndFixPartiallyScenario_id' is duplicated` }],
+      },
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileC.ts',
+        errors: [{ message: `message with id 'duplicateAndFixPartiallyScenario_id' is duplicated` }],
+      },
+    ],
+  }
+);
+
+ruleTester.run(
+  'defineMessages duplicate multiple times and partially fix scenario. Step 3: valid after all duplicates are removed',
+  defineMessagesRule,
+  {
+    valid: [
+      {
+        code: `defineMessages({})`,
+        filename: 'duplicateAndFixPartiallyFileB.ts',
+      },
+      {
+        code: `defineMessages({})`,
+        filename: 'duplicateAndFixPartiallyFileC.ts',
+      },
+      {
+        code: `defineMessages({
+          message: {
+            id: 'duplicateAndFixPartiallyScenario_id',
+            defaultMessage: 'message',
+          },
+        })`,
+        filename: 'duplicateAndFixPartiallyFileA.ts',
+      },
+    ],
+    invalid: [],
+  }
+);

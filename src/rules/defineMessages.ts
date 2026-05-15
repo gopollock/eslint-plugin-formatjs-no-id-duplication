@@ -6,6 +6,9 @@ const duplicationAnalyzer = new DuplicationAnalyzer();
 
 export default {
   create: (context: Rule.RuleContext): Rule.NodeListener => ({
+    Program: () => {
+      duplicationAnalyzer.clearFile(context.getFilename());
+    },
     CallExpression: (node: CallExpressionNode) => {
       duplicationAnalyzer.proceedDefineMessagesFunctionCall(node, context);
     },
