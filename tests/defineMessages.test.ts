@@ -139,7 +139,7 @@ ruleTester.run('defineMessages duplicate then fix scenario. Step 1: initial vali
   invalid: [],
 });
 
-ruleTester.run('defineMessages duplicate then fix scenario. Step 2: duplicate introduced', defineMessagesRule, {
+ruleTester.run('defineMessages duplicate then fix scenario. Step 2: duplicate is introduced', defineMessagesRule, {
   valid: [],
   invalid: [
     {
@@ -156,7 +156,7 @@ ruleTester.run('defineMessages duplicate then fix scenario. Step 2: duplicate in
 });
 
 ruleTester.run(
-  'defineMessages duplicate then fix scenario. Step 3: duplicate removed, valid again',
+  'defineMessages duplicate then fix scenario. Step 3: duplicate is removed, valid again',
   defineMessagesRule,
   {
     valid: [
@@ -250,7 +250,7 @@ ruleTester.run(
 );
 
 ruleTester.run(
-  'defineMessages duplicate multiple times and partially fix scenario. Step 3: valid after duplicates are removed',
+  'defineMessages duplicate multiple times and partially fix scenario. Step 3: valid after all duplicates are removed',
   defineMessagesRule,
   {
     valid: [

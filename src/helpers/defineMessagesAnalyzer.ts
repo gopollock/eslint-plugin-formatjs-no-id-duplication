@@ -3,9 +3,9 @@ import * as ESTree from 'estree';
 import { Dictionary, CallExpressionNode } from "./types";
 
 type TrackedMessage = {
+  isReported: boolean;
   node: ESTree.Property;
   context: Rule.RuleContext;
-  isReported: boolean;
 }
 
 type MessageId = string | number;
