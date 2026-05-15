@@ -47,15 +47,24 @@ export default class DefineMessagesDuplicationAnalyzer {
   public clearFile = (filename: string): void => {
     const ids = this.messageIdsByFilename[filename];
 
-    ids?.forEach((id) => this.fileNamesById[id]?.delete(filename));
+    ids?.forEach((id) => {
+      this.fileNamesById[id]?.delete(filename);
+      if (this.fileNamesById[id]?.size === 0) {
+        delete this.fileNamesById[id];
+        delete this.messageById[id];
+      }
+    });
     delete this.messageIdsByFilename[filename];
   }
 
-  private addToFileTracker = (filename: string, messageId: MessageId): void => {
+  private trackMessageInFile = (filename: string, messageId: MessageId): void => {
     const ids = this.messageIdsByFilename[filename] ?? new Set();
     ids.add(messageId);
-
     this.messageIdsByFilename[filename] = ids;
+
+    const fileNames = this.fileNamesById[messageId] ?? new Set();
+    fileNames.add(filename);
+    this.fileNamesById[messageId] = fileNames;
   }
 
   private checkMessageDuplication = (messageNode: ESTree.Property, context: Rule.RuleContext): void => {
@@ -65,25 +74,21 @@ export default class DefineMessagesDuplicationAnalyzer {
     }
 
     const filename = context.getFilename();
-    const existingFilenames = this.fileNamesById[messageId] ?? new Set();
+    const firstTrackedMessage = this.messageById[messageId];
 
-    if (existingFilenames.size === 0) {
-      this.fileNamesById[messageId] = new Set([filename]);
-      this.addToFileTracker(filename, messageId);
+    if (firstTrackedMessage === undefined) {
+      this.trackMessageInFile(filename, messageId);
       this.messageById[messageId] = { node: messageNode, context, isReported: false };
       return;
     }
 
-    const firstOccurrence = this.messageById[messageId];
-    if (firstOccurrence !== undefined && !firstOccurrence.isReported) {
-      firstOccurrence.isReported = true;
-      this.reportDuplication(messageId, firstOccurrence.context, firstOccurrence.node);
+    if (!firstTrackedMessage.isReported) {
+      firstTrackedMessage.isReported = true;
+      this.reportDuplication(messageId, firstTrackedMessage.context, firstTrackedMessage.node);
     }
 
     this.reportDuplication(messageId, context, messageNode);
-
-    this.addToFileTracker(filename, messageId);
-    existingFilenames.add(filename);
+    this.trackMessageInFile(filename, messageId);
   }
 
   public proceedDefineMessagesFunctionCall = (node: CallExpressionNode, context: Rule.RuleContext): void => {
