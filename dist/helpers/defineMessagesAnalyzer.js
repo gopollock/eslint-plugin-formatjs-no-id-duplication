@@ -3,7 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var DefineMessagesDuplicationAnalyzer = /** @class */ (function () {
     function DefineMessagesDuplicationAnalyzer() {
         var _this = this;
-        this.idTracker = {};
+        this.messageById = {};
+        this.fileNamesById = {};
+        this.messageIdsByFilename = {};
         this.reportDuplication = function (messageId, context, messageNode) {
             context.report({
                 message: "message with id '" + messageId + "' is duplicated",
@@ -11,9 +13,9 @@ var DefineMessagesDuplicationAnalyzer = /** @class */ (function () {
             });
         };
         this.getMessageId = function (messageNode) {
-            var messageNodeProperies = messageNode.value.type === 'ObjectExpression' ?
+            var messageNodeProperties = messageNode.value.type === 'ObjectExpression' ?
                 _this.removeSpreadElements(messageNode.value.properties) : [];
-            var messageIdNode = messageNodeProperies.find(function (messagesProperty) { return messagesProperty.key.type === 'Identifier' && messagesProperty.key.name === 'id'; });
+            var messageIdNode = messageNodeProperties.find(function (property) { return (property.key.type === 'Identifier') && (property.key.name === 'id'); });
             if ((messageIdNode == null) || messageIdNode.value.type !== 'Literal') {
                 return null;
             }
@@ -23,25 +25,45 @@ var DefineMessagesDuplicationAnalyzer = /** @class */ (function () {
             }
             return null;
         };
+        this.clearFile = function (filename) {
+            var ids = _this.messageIdsByFilename[filename];
+            ids === null || ids === void 0 ? void 0 : ids.forEach(function (id) {
+                var _a, _b;
+                (_a = _this.fileNamesById[id]) === null || _a === void 0 ? void 0 : _a.delete(filename);
+                if (((_b = _this.fileNamesById[id]) === null || _b === void 0 ? void 0 : _b.size) === 0) {
+                    delete _this.fileNamesById[id];
+                    delete _this.messageById[id];
+                }
+            });
+            delete _this.messageIdsByFilename[filename];
+        };
+        this.trackMessageInFile = function (filename, messageId) {
+            var _a, _b;
+            var ids = (_a = _this.messageIdsByFilename[filename]) !== null && _a !== void 0 ? _a : new Set();
+            ids.add(messageId);
+            _this.messageIdsByFilename[filename] = ids;
+            var fileNames = (_b = _this.fileNamesById[messageId]) !== null && _b !== void 0 ? _b : new Set();
+            fileNames.add(filename);
+            _this.fileNamesById[messageId] = fileNames;
+        };
         this.checkMessageDuplication = function (messageNode, context) {
             var messageId = _this.getMessageId(messageNode);
             if (messageId == null) {
                 return;
             }
-            var firstTrakedMessage = _this.idTracker[messageId];
-            if (firstTrakedMessage == null) {
-                _this.idTracker[messageId] = {
-                    node: messageNode,
-                    context: context,
-                    isReported: false,
-                };
+            var filename = context.getFilename();
+            var firstTrackedMessage = _this.messageById[messageId];
+            if (firstTrackedMessage === undefined) {
+                _this.trackMessageInFile(filename, messageId);
+                _this.messageById[messageId] = { node: messageNode, context: context, isReported: false };
                 return;
             }
-            _this.reportDuplication(messageId, context, messageNode);
-            if (!firstTrakedMessage.isReported) {
-                firstTrakedMessage.isReported = true;
-                _this.reportDuplication(messageId, firstTrakedMessage.context, firstTrakedMessage.node);
+            if (!firstTrackedMessage.isReported) {
+                firstTrackedMessage.isReported = true;
+                _this.reportDuplication(messageId, firstTrackedMessage.context, firstTrackedMessage.node);
             }
+            _this.reportDuplication(messageId, context, messageNode);
+            _this.trackMessageInFile(filename, messageId);
         };
         this.proceedDefineMessagesFunctionCall = function (node, context) {
             var isDefineMessagesFunctionCall = _this.getIsDefineMessagesFunctionNode(node);
@@ -51,7 +73,7 @@ var DefineMessagesDuplicationAnalyzer = /** @class */ (function () {
             var messageNodeList = _this.getMessageNodeList(node);
             messageNodeList.forEach(function (node) { return _this.checkMessageDuplication(node, context); });
         };
-        this.removeSpreadElements = function (allProperies) { return allProperies.filter(function (messageNode) { return messageNode.type === 'Property'; }); };
+        this.removeSpreadElements = function (allProperties) { return allProperties.filter(function (messageNode) { return messageNode.type === 'Property'; }); };
         this.getMessageNodeList = function (node) {
             var firstArgument = node.arguments[0];
             if (firstArgument.type !== 'ObjectExpression') {

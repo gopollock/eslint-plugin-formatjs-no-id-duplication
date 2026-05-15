@@ -187,12 +187,12 @@
         "affectsGlobalScope": false
       },
       "./src/helpers/defineMessagesAnalyzer.ts": {
-        "version": "bc0816d46d8260426652fc87ac54cd5f391ee87ef981bb2023e3bd7f1f45e869",
-        "signature": "ed8391b3df50646e5c7474c6e3eedd7f2ecfd8d3b0d1493670db482c6e1794b2",
+        "version": "6aac96a12e0c4f20b05ea437c3bc08285e5d614865616c275f889a0eaf1d3428",
+        "signature": "05f55792fb3aa10544c7ed9add9a5c619ed6cdad5adbbf3e926b5568f880185c",
         "affectsGlobalScope": false
       },
       "./src/rules/defineMessages.ts": {
-        "version": "4f0b421b98ecf5113cb595076fa131682f81367c0449166e845c17c7163bd8d5",
+        "version": "1852fe44a016bba75b3f85b53b1c521b4872ae0f532e3185d772aa7a466b8652",
         "signature": "458fefb16b447ce26bc27720052101a3ee93dc7b83b48f2ab9fb947fb829ca77",
         "affectsGlobalScope": false
       },

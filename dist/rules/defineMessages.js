@@ -7,6 +7,9 @@ var defineMessagesAnalyzer_1 = __importDefault(require("../helpers/defineMessage
 var duplicationAnalyzer = new defineMessagesAnalyzer_1.default();
 exports.default = {
     create: function (context) { return ({
+        Program: function () {
+            duplicationAnalyzer.clearFile(context.getFilename());
+        },
         CallExpression: function (node) {
             duplicationAnalyzer.proceedDefineMessagesFunctionCall(node, context);
         },
